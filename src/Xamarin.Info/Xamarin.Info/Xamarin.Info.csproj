@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aktiv.RutokenPkcs11Interop" Version="2.0.11" />
-    <PackageReference Include="Xamarin.Forms" Version="3.6.0.293080" />
+    <PackageReference Include="Xamarin.Forms" Version="4.7.0.1260" />
   </ItemGroup>
 
   <ItemGroup>
