@@ -30,8 +30,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Pkcs11Interop, Version=4.1.1.0, Culture=neutral, PublicKeyToken=c10e9c2d8c006d2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Pkcs11Interop.4.1.1\lib\net45\Pkcs11Interop.dll</HintPath>
+    <Reference Include="Pkcs11Interop, Version=4.1.2.0, Culture=neutral, PublicKeyToken=c10e9c2d8c006d2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Pkcs11Interop.4.1.2\lib\net45\Pkcs11Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="RutokenPkcs11Interop, Version=2.0.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Aktiv.RutokenPkcs11Interop.2.0.11\lib\net45\RutokenPkcs11Interop.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -50,6 +53,7 @@
     <Compile Include="SampleData.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
