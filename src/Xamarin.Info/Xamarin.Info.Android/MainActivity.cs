@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 
+
 namespace Xamarin.Info.Droid
 {
     [Activity(Label = "Xamarin.Info", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
@@ -19,7 +20,7 @@ namespace Xamarin.Info.Droid
 
             base.OnCreate(savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
-            LoadApplication(new App());
+            LoadApplication(new App(new AndroidFunctions()));
         }
     }
 }

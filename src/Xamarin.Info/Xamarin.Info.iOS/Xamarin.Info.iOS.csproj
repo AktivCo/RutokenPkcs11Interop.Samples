@@ -49,11 +49,13 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <MtouchArch>ARM64</MtouchArch>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>Apple Development: dfghdfghdfgh dfgsxhdfgh (P726H8347Y)</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <MtouchExtraArgs>--optimize=-blockliteral-setupblock</MtouchExtraArgs>
     <MtouchLink>SdkOnly</MtouchLink>
+    <CodesignProvision>iOS Team Provisioning Profile: ru.rutoken.testappcreatefile</CodesignProvision>
+<MtouchSdkVersion>14.3</MtouchSdkVersion>
+<MtouchExtraArgs>--mono=framework</MtouchExtraArgs>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>

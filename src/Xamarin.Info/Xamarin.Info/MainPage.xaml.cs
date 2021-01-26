@@ -40,10 +40,28 @@ namespace Xamarin.Info
             }
         }
 
-        private void Button_OnClicked(object sender, EventArgs e)
+        private void WaitingForToken(Pkcs11 pkcs11)
         {
+            for (; ; )
+            {
+                List<Slot> slots = pkcs11.GetSlotList(SlotsType.WithTokenPresent);
+            }
+
+        }
+
+        private async void Button_OnClicked(object sender, EventArgs e)
+        {
+            bool use_nfc = false;
             try
             {
+                string token_type = await DisplayActionSheet("Использовать:", "Cancel", null, "NFC Рутокен", "BT Рутокен");
+
+                use_nfc = token_type == "NFC Рутокен";
+                if (use_nfc)
+                {
+                    Action<string> callback = x => Console.WriteLine(x);
+                    App.platformSpecificFunctions.startNFC(callback); // needed only for iOs. On Android do nothing
+                }
                 Features = new ObservableCollection<Feature>();
 
                 // Инициализировать библиотеку
@@ -55,6 +73,11 @@ namespace Xamarin.Info
                     Features.Add(new Feature("PKCS#11 version", libraryInfo.CryptokiVersion));
                     Features.Add(new Feature("Library manufacturer", libraryInfo.ManufacturerId));
                     Features.Add(new Feature("Library description", libraryInfo.LibraryDescription));
+
+                    if (use_nfc)
+                    {
+                        WaitingForToken(pkcs11);
+                    }
 
                     // Получить слоты
                     List<Slot> slots = pkcs11.GetSlotList(SlotsType.WithTokenPresent);
@@ -115,6 +138,13 @@ namespace Xamarin.Info
             catch (Exception ex)
             {
                 DisplayAlert("Error", $"Operation failed [Message: {ex.Message}]", "OK");
+            }
+            finally
+            {
+                if (use_nfc)
+                {
+                    App.platformSpecificFunctions.stopNFC(); // needed only for iOs. On Android do nothing
+                }
             }
         }
     }

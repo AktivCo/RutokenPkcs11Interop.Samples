@@ -4,7 +4,7 @@ namespace Xamarin.Info
 {
     public interface IPlatformSpecificFunctions
     {
-        void startNFC();
+        void startNFC(Action<string> callback);
         void stopNFC();
     }
 }

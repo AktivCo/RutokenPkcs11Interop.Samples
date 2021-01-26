@@ -21,11 +21,11 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>MinimumOSVersion</key>
-	<string>8.0</string>
+	<string>13.0</string>
 	<key>CFBundleDisplayName</key>
-	<string>Xamarin.Info.iOS</string>
+	<string>ru.rutoken.testappcreatefile</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.companyname.Xamarin.Info.iOS</string>
+	<string>ru.rutoken.testappcreatefile</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>UILaunchStoryboardName</key>
@@ -38,5 +38,14 @@
 	<array>
 		<string>com.aktivco.rutokenecp</string>
 	</array>
+
+	<key>NFCReaderUsageDescription</key>
+	<string>Allow NFC scanning</string>
+        <key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
+        <array>
+                <string>F00000000010000000000100</string>
+                <string>A000000151000000</string>
+                <string>A00000039742544659</string>
+        </array>
 </dict>
 </plist>

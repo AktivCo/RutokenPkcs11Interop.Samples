@@ -3,7 +3,7 @@ namespace Xamarin.Info.Droid
 {
     public class AndroidFunctions : IPlatformSpecificFunctions
     {
-        public void startNFC() { }
+        public void startNFC(Action<string> callback) { }
         public void stopNFC() { }
     }
 }

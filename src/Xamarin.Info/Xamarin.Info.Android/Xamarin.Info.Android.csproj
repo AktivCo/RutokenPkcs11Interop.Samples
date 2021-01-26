@@ -15,7 +15,6 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <NuGetPackageImportStamp>
@@ -70,6 +69,7 @@
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="AndroidFunctions.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAarLibrary Include="Jars\rtserviceconnection-*.aar" />
@@ -104,7 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.Info\Xamarin.Info.csproj">
-      <Project>{2F48BE87-C78F-4DA6-B058-446BEE3E7E4A}</Project>
+      <Project>{BB5907CC-9508-428B-9E56-046BA6160E3F}</Project>
       <Name>Xamarin.Info</Name>
     </ProjectReference>
   </ItemGroup>

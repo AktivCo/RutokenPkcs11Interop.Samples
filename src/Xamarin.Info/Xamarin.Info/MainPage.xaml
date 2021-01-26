@@ -13,7 +13,7 @@
                 <DataTemplate>
                     <ViewCell>
                         <ContentView Padding="5">
-                            <Frame BorderColor="Accent"
+                            <Frame BorderColor="Black"
                                    Padding="10">
                                 <StackLayout Orientation="Horizontal">
                                     <StackLayout>
