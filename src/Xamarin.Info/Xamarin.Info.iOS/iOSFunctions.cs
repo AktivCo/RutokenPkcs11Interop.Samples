@@ -8,24 +8,24 @@ namespace Xamarin.Info.iOS
     public class iOsFunctions : IPlatformSpecificFunctions
     {
         // Declare the signature of the method that users would have to provide
-        public delegate void startNFCCallback(ref NSError nserror);
+        public delegate void startNFCCallback(IntPtr error);
 
         // Declare the signature of the method that the block will call
-        private delegate void startNFCCallbackProxy(IntPtr blockLiteral, ref NSError nserror);
+        private delegate void startNFCCallbackProxy(IntPtr block, IntPtr error);
 
-        // Static variable that points to our trampoline method
-        private static readonly startNFCCallbackProxy static_handler = TrampolineHandler;
+        static startNFCCallbackProxy static_handler = TrampolineHandler;
 
         // Our trampoline method must be registered for reverse-callback with Mono
         // it takes one extra parameter than the signature, which is the pointer
         // to the block that was originally passed.
         [MonoPInvokeCallback(typeof(startNFCCallbackProxy))]
-        private static void TrampolineHandler(IntPtr block, ref NSError error)
+        private static void TrampolineHandler(IntPtr block, IntPtr error)
         {
+            Console.WriteLine("kek");
             // Find the delegate for the block and call it
             var callback = BlockLiteral.GetTarget<startNFCCallback>(block);
             if (callback != null)
-                callback(ref error);
+                callback(error);
         }
 
         private class NativeLibrary
@@ -34,24 +34,32 @@ namespace Xamarin.Info.iOS
             public static extern void startNFC(ref BlockLiteral block);
 
             [DllImport("__Internal")]
+            public static extern void testFunc(ref BlockLiteral block);
+
+            [DllImport("__Internal")]
             public static extern int stopNFC();
         }
 
+
+        static BlockLiteral block = new BlockLiteral();
+
+        [BindingImpl(BindingImplOptions.Optimizable)]
         public void startNFC(Action<string> callback)
         {
-            startNFCCallback internalCallback = (ref NSError x) => Console.WriteLine(x);
-            BlockLiteral block = new BlockLiteral();
-            block.SetupBlock(static_handler, internalCallback);
+            startNFCCallback internalCallback = ptr => {
+                NSError error = (NSError) Runtime.GetNSObject(ptr);
+                callback(error.LocalizedDescription);
+            };
+
+            block.SetupBlockUnsafe(static_handler, internalCallback);
+
             try
             {
-                NativeLibrary.startNFC(ref block) ;
+                NativeLibrary.startNFC(ref block);
             }
             catch (Exception ex)
             {
                 Console.Write("Error", $"Operation failed [Message: {ex.Message}]", "OK");
-            }
-            finally
-            {
                 block.CleanupBlock();
             }
         }
@@ -59,6 +67,7 @@ namespace Xamarin.Info.iOS
         public void stopNFC()
         {
             NativeLibrary.stopNFC();
+            block.CleanupBlock();
         }
     }
 }

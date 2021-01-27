@@ -54,8 +54,7 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchLink>SdkOnly</MtouchLink>
     <CodesignProvision>iOS Team Provisioning Profile: ru.rutoken.testappcreatefile</CodesignProvision>
-<MtouchSdkVersion>14.3</MtouchSdkVersion>
-<MtouchExtraArgs>--mono=framework</MtouchExtraArgs>
+    <MtouchSdkVersion>14.4</MtouchSdkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
