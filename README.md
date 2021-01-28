@@ -20,4 +20,4 @@
 С Pkcs11Interop версии 5.0.0 будут проблемы при сборке проекта.
 
 ## Сборка для Andoid
-При сборке для Android устойств, дополнительно нужно добавить последнюю версию пакета rtserviceconnection-1.0.2.aar в директорию src/Xamarin.Info/Xamarin.Info.Android/Jars. Пакет можно взять из нашего [sdk](https://www.rutoken.ru/developers/sdk/) в директории sdk\mobile\android\libs
+При сборке для Android устойств, дополнительно нужно положить последние версии библиотек rtserviceconnection.aar и pkcs11jna.jar в директорию src/Xamarin.Info/Xamarin.Info.Android/Jars. Пакет их взять из нашего [sdk](https://www.rutoken.ru/developers/sdk/) в директориях sdk\mobile\android\libs и sdk\java\samples\lib

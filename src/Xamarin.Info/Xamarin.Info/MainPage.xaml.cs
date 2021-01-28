@@ -80,8 +80,8 @@ namespace Xamarin.Info
                     iOS.startNFC(callback);
 #endif
                 }
-                Features = new ObservableCollection<Feature>();
 
+                Features = new ObservableCollection<Feature>();
                 RutokenPkcs11InteropFactories factories = new RutokenPkcs11InteropFactories();
 
                 // Инициализировать библиотеку
