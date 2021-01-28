@@ -16,8 +16,7 @@
 - обнаружение устройств,
 - и другие аспекты прикладного взаимодействия с устройствами Рутокен.
 
-Перед началом запуска примеров, нужно в менеджере пакетов NuGet установить Aktiv.RutokenPkcs11Interop и Pkcs11Interop версии 4.1.2.
-С Pkcs11Interop версии 5.0.0 будут проблемы при сборке проекта.
+Перед началом запуска примеров, нужно в менеджере пакетов NuGet установить RutokenPkcs11Interop послежне версии
 
 ## Сборка для Andoid
-При сборке для Android устойств, дополнительно нужно положить последние версии библиотек rtserviceconnection.aar и pkcs11jna.jar в директорию src/Xamarin.Info/Xamarin.Info.Android/Jars. Пакет их взять из нашего [sdk](https://www.rutoken.ru/developers/sdk/) в директориях sdk\mobile\android\libs и sdk\java\samples\lib
+При сборке для Android устойств, дополнительно нужно положить последние версии библиотек rtserviceconnection.aar и pkcs11jna.jar в директорию src/Xamarin.Info/Xamarin.Info.Android/Jars. Их можно взять из нашего [sdk](https://www.rutoken.ru/developers/sdk/) в директориях sdk\mobile\android\libs и sdk\java\samples\lib
