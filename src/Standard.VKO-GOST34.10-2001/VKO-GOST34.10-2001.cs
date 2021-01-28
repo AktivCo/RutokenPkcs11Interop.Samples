@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
 using Net.Pkcs11Interop.HighLevelAPI.MechanismParams;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Common;
-using RutokenPkcs11Interop.HighLevelAPI.MechanismParams;
-using RutokenPkcs11Interop.Samples.Common;
-using CkGostR3410DeriveParams = RutokenPkcs11Interop.HighLevelAPI.MechanismParams.CkGostR3410DeriveParams;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI.MechanismParams;
+using Net.RutokenPkcs11Interop.Samples.Common;
+using ICkGostR3410DeriveParams = Net.Pkcs11Interop.HighLevelAPI.MechanismParams.ICkGostR3410DeriveParams;
 
 namespace Standard.VKO_GOST3410_2001
 {
@@ -36,56 +37,56 @@ namespace Standard.VKO_GOST3410_2001
     class VKO_GOST3410_2001
     {
         // Шаблон для поиска закрытого ключа отправителя
-        static readonly List<ObjectAttribute> PrivateKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PrivateKeyAttributes = new List<IObjectAttribute>
         {
             // ID пары
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.GostKeyPairId1),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.GostKeyPairId1),
             // Класс - закрытый ключ
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
             // Тип ключа - ГОСТ Р 34.10-2001
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint) Extended_CKK.CKK_GOSTR3410)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint) CKK.CKK_GOSTR3410)
         };
 
         // Шаблон для создания ключа обмена
-        static readonly List<ObjectAttribute> DerivedKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> DerivedKeyAttributes = new List<IObjectAttribute>
         {
             // Метка ключа
-            new ObjectAttribute(CKA.CKA_LABEL, SampleConstants.DerivedKeyLabel),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_LABEL, SampleConstants.DerivedKeyLabel),
             // Класс - секретный ключ
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_SECRET_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_SECRET_KEY),
             // Тип ключа - ГОСТ 28147-89
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint) Extended_CKK.CKK_GOST28147),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint) CKK.CKK_GOST28147),
             // Ключ является объектом сессии
-            new ObjectAttribute(CKA.CKA_TOKEN, false),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, false),
             // Ключ может быть изменен после создания
-            new ObjectAttribute(CKA.CKA_MODIFIABLE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_MODIFIABLE, true),
             // Ключ доступен только после аутентификации на токене
-            new ObjectAttribute(CKA.CKA_PRIVATE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_PRIVATE, true),
             // Ключ может быть извлечен в зашифрованном виде
-            new ObjectAttribute(CKA.CKA_EXTRACTABLE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_EXTRACTABLE, true),
             // Ключ может быть извлечен в открытом виде
-            new ObjectAttribute(CKA.CKA_SENSITIVE, false)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_SENSITIVE, false)
         };
 
         // Шаблон сессионного ключа
-        static readonly List<ObjectAttribute> SessionKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> SessionKeyAttributes = new List<IObjectAttribute>
         {
             // Метка ключа
-            new ObjectAttribute(CKA.CKA_LABEL, SampleConstants.WrappedKeyLabel),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_LABEL, SampleConstants.WrappedKeyLabel),
             // Класс - секретный ключ
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_SECRET_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_SECRET_KEY),
             // Тип ключа - ГОСТ 28147-89
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint) Extended_CKK.CKK_GOST28147),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint) CKK.CKK_GOST28147),
             // Ключ является объектом сессии
-            new ObjectAttribute(CKA.CKA_TOKEN, false),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, false),
             // Ключ может быть изменен после создания
-            new ObjectAttribute(CKA.CKA_MODIFIABLE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_MODIFIABLE, true),
             // Ключ доступен только после аутентификации на токене
-            new ObjectAttribute(CKA.CKA_PRIVATE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_PRIVATE, true),
             // Ключ может быть извлечен в зашифрованном виде
-            new ObjectAttribute(CKA.CKA_EXTRACTABLE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_EXTRACTABLE, true),
             // Ключ может быть извлечен в открытом виде
-            new ObjectAttribute(CKA.CKA_SENSITIVE, false)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_SENSITIVE, false)
         };
 
         /// <summary>
@@ -95,13 +96,13 @@ namespace Standard.VKO_GOST3410_2001
         /// <param name="privateKeyAttributes">Шаблон для поиска закрытого ключа</param>
         /// <param name="ukm">Буфер, содержащий UKM</param>
         /// <param name="derivedKeyHandle">Хэндл выработанного общего ключа</param>
-        static void Derive_GostR3410_Key(Session session,
-            List<ObjectAttribute> privateKeyAttributes,
-            byte[] ukm, out ObjectHandle derivedKeyHandle)
+        static void Derive_GostR3410_Key(IRutokenSession session,
+            List<IObjectAttribute> privateKeyAttributes,
+            byte[] ukm, out IObjectHandle derivedKeyHandle)
         {
             // Получить массив хэндлов закрытых ключей
             Console.WriteLine("Getting private key...");
-            List<ObjectHandle> privateKeys = session.FindAllObjects(privateKeyAttributes);
+            List<IObjectHandle> privateKeys = session.FindAllObjects(privateKeyAttributes);
             Errors.Check("No private keys found", privateKeys.Count > 0);
 
             var attributes = new List<CKA>
@@ -112,11 +113,11 @@ namespace Standard.VKO_GOST3410_2001
             // Определение параметров механизма наследования ключа
             Console.WriteLine("Deriving key...");
             var deriveMechanismParams =
-                new CkGostR3410DeriveParams(
-                    (uint)Extended_CKD.CKD_CPDIVERSIFY_KDF, SampleData.PublicKeyData_256, ukm);
+                Helpers.factories.MechanismParamsFactory.CreateCkGostR3410DeriveParams(
+                    (uint)CKD.CKD_CPDIVERSIFY_KDF, SampleData.PublicKeyData_256, ukm);
 
             // Определяем механизм наследования ключа
-            var deriveMechanism = new Mechanism((uint)Extended_CKM.CKM_GOSTR3410_DERIVE, deriveMechanismParams);
+            var deriveMechanism = Helpers.factories.MechanismFactory.Create((uint)CKM.CKM_GOSTR3410_DERIVE, deriveMechanismParams);
 
             // Наследуем ключ
             derivedKeyHandle = session.DeriveKey(deriveMechanism, privateKeys[0], DerivedKeyAttributes);
@@ -126,7 +127,7 @@ namespace Standard.VKO_GOST3410_2001
             try
             {
                 // Получить и распечатать значение выработанного ключа
-                List<ObjectAttribute> derivedKeyValue = session.GetAttributeValue(derivedKeyHandle, attributes);
+                List<IObjectAttribute> derivedKeyValue = session.GetAttributeValue(derivedKeyHandle, attributes);
                 Console.WriteLine(" Derived key value:");
                 Helpers.PrintByteArray(derivedKeyValue[0].GetValueAsByteArray());
             }
@@ -144,31 +145,31 @@ namespace Standard.VKO_GOST3410_2001
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Определение поддерживаемых токеном механизмов
                     Console.WriteLine("Checking mechanisms available");
                     List<CKM> mechanisms = slot.GetMechanismList();
                     Errors.Check(" No mechanisms available", mechanisms.Count > 0);
-                    bool isGostR3410DeriveSupported = mechanisms.Contains((CKM)Extended_CKM.CKM_GOSTR3410_DERIVE);
-                    bool isGostWrapSupported = mechanisms.Contains((CKM)Extended_CKM.CKM_GOST28147_KEY_WRAP);
+                    bool isGostR3410DeriveSupported = mechanisms.Contains((CKM)CKM.CKM_GOSTR3410_DERIVE);
+                    bool isGostWrapSupported = mechanisms.Contains((CKM)CKM.CKM_GOST28147_KEY_WRAP);
                     Errors.Check(" CKM_GOSTR3410_DERIVE isn`t supported!", isGostR3410DeriveSupported);
                     Errors.Check(" CKM_GOST28147_KEY_WRAP isn`t supported!", isGostWrapSupported);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
                         session.Login(CKU.CKU_USER, SampleConstants.NormalUserPin);
 
-                        ObjectHandle sessionKeyHandle = null;
-                        ObjectHandle derivedKeyHandle = null;
+                        IObjectHandle sessionKeyHandle = null;
+                        IObjectHandle derivedKeyHandle = null;
 
                         try
                         {
@@ -180,7 +181,7 @@ namespace Standard.VKO_GOST3410_2001
                             // Генерация значения сессионного ключа
                             byte[] sessionKeyValue = session.GenerateRandom(SampleConstants.Gost28147_KeySize);
 
-                            Console.WriteLine(" Session key data is:");
+                            Console.WriteLine(" IRutokenSession key data is:");
                             Helpers.PrintByteArray(sessionKeyValue);
                             Console.WriteLine("Preparing has been completed successfully");
 
@@ -194,12 +195,12 @@ namespace Standard.VKO_GOST3410_2001
                             Console.WriteLine("Wrapping key...");
                             Console.WriteLine(" Creating the GOST 28147-89 key to wrap...");
                             // Выработка ключа, который будет замаскирован
-                            SessionKeyAttributes.Add(new ObjectAttribute(CKA.CKA_VALUE, sessionKeyValue));
+                            SessionKeyAttributes.Add(Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_VALUE, sessionKeyValue));
                             sessionKeyHandle = session.CreateObject(SessionKeyAttributes);
 
                             // Определение параметров механизма маскирования
-                            var wrapMechanismParams = new CkKeyDerivationStringData(ukm);
-                            var wrapMechanism = new Mechanism((uint)Extended_CKM.CKM_GOST28147_KEY_WRAP, wrapMechanismParams);
+                            var wrapMechanismParams = Helpers.factories.MechanismParamsFactory.CreateCkKeyDerivationStringData(ukm);
+                            var wrapMechanism = Helpers.factories.MechanismFactory.Create((uint)CKM.CKM_GOST28147_KEY_WRAP, wrapMechanismParams);
 
                             // Маскирование ключа
                             byte[] wrappedKey = session.WrapKey(wrapMechanism, derivedKeyHandle, sessionKeyHandle);

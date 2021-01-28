@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Common;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Common;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace DeleteGOST3410_2001
 {
@@ -29,25 +30,25 @@ namespace DeleteGOST3410_2001
     {
         // Шаблон для поиска ключевой пары ГОСТ Р 34.10-2001
         // (первая ключевая пара для подписи и выработки общего ключа)
-        static readonly List<ObjectAttribute> KeyPair1Attributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> KeyPair1Attributes = new List<IObjectAttribute>
         {
             // Идентификатор ключевой пары
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.GostKeyPairId1),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.GostKeyPairId1),
             // Тип ключа - ГОСТ Р 34.10-2001
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint) Extended_CKK.CKK_GOSTR3410)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint) CKK.CKK_GOSTR3410)
         };
 
         // Шаблон для поиска ключевой пары ГОСТ Р 34.10-2001
         // (вторая ключевая пара для подписи и выработки общего ключа)
-        static readonly List<ObjectAttribute> KeyPair2Attributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> KeyPair2Attributes = new List<IObjectAttribute>
         {
             // Идентификатор ключевой пары
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.GostKeyPairId2),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.GostKeyPairId2),
             // Тип ключа - ГОСТ Р 34.10-2001
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint) Extended_CKK.CKK_GOSTR3410)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint) CKK.CKK_GOSTR3410)
         };
 
-        static readonly List<List<ObjectAttribute>> KeyPairsAttributes = new List<List<ObjectAttribute>>
+        static readonly List<List<IObjectAttribute>> KeyPairsAttributes = new List<List<IObjectAttribute>>
         {
             KeyPair1Attributes,
             KeyPair2Attributes
@@ -59,15 +60,15 @@ namespace DeleteGOST3410_2001
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -77,7 +78,7 @@ namespace DeleteGOST3410_2001
                         {
                             // Получить массив хэндлов объектов, соответствующих критериям поиска
                             Console.WriteLine("Getting key pairs...");
-                            var foundObjects = new List<ObjectHandle>();
+                            var foundObjects = new List<IObjectHandle>();
                             foreach (var keyPairAttributes in KeyPairsAttributes)
                             {
                                 foundObjects.AddRange(session.FindAllObjects(keyPairAttributes));

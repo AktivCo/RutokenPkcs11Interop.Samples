@@ -4,10 +4,11 @@ using System.IO;
 using System.Linq;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Common;
-using RutokenPkcs11Interop.Helpers;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Common;
+using Net.RutokenPkcs11Interop.Helpers;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace Standard.EncDecGOST28147_89_CBC
 {
@@ -32,39 +33,39 @@ namespace Standard.EncDecGOST28147_89_CBC
     class EncDecGOST28147_89_CBC
     {
         // Шаблон для импорта симметричного ключа ГОСТ 28147-89
-        static readonly List<ObjectAttribute> ImportKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> ImportKeyAttributes = new List<IObjectAttribute>
         {
             // Класс - секретный ключ
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_SECRET_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_SECRET_KEY),
             // Метка ключа
-            new ObjectAttribute(CKA.CKA_LABEL, SampleConstants.GostSecretKeyLabel),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_LABEL, SampleConstants.GostSecretKeyLabel),
             // Идентификатор ключа
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.GostSecretKeyId),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.GostSecretKeyId),
             // Тип ключа - ГОСТ 28147-89
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint) Extended_CKK.CKK_GOST28147),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint) CKK.CKK_GOST28147),
             // Ключ является объектом сессии
-            new ObjectAttribute(CKA.CKA_TOKEN, false),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, false),
             // Ключ может быть изменен после создания
-            new ObjectAttribute(CKA.CKA_MODIFIABLE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_MODIFIABLE, true),
             // Ключ доступен только после аутентификации на токене
-            new ObjectAttribute(CKA.CKA_PRIVATE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_PRIVATE, true),
             // Ключ может быть извлечен в зашифрованном виде
-            new ObjectAttribute(CKA.CKA_EXTRACTABLE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_EXTRACTABLE, true),
             // Ключ может быть извлечен в открытом виде
-            new ObjectAttribute(CKA.CKA_SENSITIVE, false),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_SENSITIVE, false),
             // Значение секретного ключа
-            new ObjectAttribute(CKA.CKA_VALUE, SampleData.ImportSecretKey)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_VALUE, SampleData.ImportSecretKey)
         };
 
         // Шаблон для поиска симметричного ключа ГОСТ 28147-89
-        static readonly List<ObjectAttribute> SymmetricKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> SymmetricKeyAttributes = new List<IObjectAttribute>
         {
             // Идентификатор ключа
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_SECRET_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_SECRET_KEY),
             // Класс - секретный ключ
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.GostSecretKeyId),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.GostSecretKeyId),
             // Тип ключа - ГОСТ 28147-89
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint) Extended_CKK.CKK_GOST28147)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint) CKK.CKK_GOST28147)
         };
 
         static void Main(string[] args)
@@ -73,15 +74,15 @@ namespace Standard.EncDecGOST28147_89_CBC
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -116,7 +117,7 @@ namespace Standard.EncDecGOST28147_89_CBC
                             using (var ms = new MemoryStream())
                             {
                                 // Инициализировать операцию шифрования
-                                var mechanism = new Mechanism((uint)Extended_CKM.CKM_GOST28147_ECB);
+                                var mechanism = Helpers.factories.MechanismFactory.Create((uint)CKM.CKM_GOST28147_ECB);
 
                                 for (var i = 0; i < dataWithPadding.Length / SampleConstants.Gost28147_89_BlockSize; i++)
                                 {
@@ -128,9 +129,9 @@ namespace Standard.EncDecGOST28147_89_CBC
                                         Console.WriteLine("  Key meshing (set key)");
 
                                         byte[] keyBlobForMeshing = session.Decrypt(mechanism, secretKeyHandle, SampleData.CryptoProKeyMeshingConstant);
-                                        var attributes = new List<ObjectAttribute>
+                                        var attributes = new List<IObjectAttribute>
                                         {
-                                            new ObjectAttribute(CKA.CKA_VALUE, keyBlobForMeshing)
+                                            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_VALUE, keyBlobForMeshing)
                                         };
                                         session.SetAttributeValue(secretKeyHandle, attributes);
 
@@ -161,9 +162,9 @@ namespace Standard.EncDecGOST28147_89_CBC
 
                             // Установить секретный ключ в начальное состояние
                             Console.WriteLine(" Set default key value...");
-                            var defaultSecreyKeyValueAttribute = new List<ObjectAttribute>
+                            var defaultSecreyKeyValueAttribute = new List<IObjectAttribute>
                             {
-                                new ObjectAttribute(CKA.CKA_VALUE, SampleData.ImportSecretKey)
+                                Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_VALUE, SampleData.ImportSecretKey)
                             };
                             session.SetAttributeValue(secretKeyHandle, defaultSecreyKeyValueAttribute);
 
@@ -176,7 +177,7 @@ namespace Standard.EncDecGOST28147_89_CBC
                             Console.WriteLine("Decrypting...");
 
                             Console.WriteLine(" Getting secret key...");
-                            List<ObjectHandle> keys = session.FindAllObjects(SymmetricKeyAttributes);
+                            List<IObjectHandle> keys = session.FindAllObjects(SymmetricKeyAttributes);
                             Errors.Check("No keys found", keys.Count > 0);
 
                             round = new byte[SampleConstants.Gost28147_89_BlockSize];
@@ -185,7 +186,7 @@ namespace Standard.EncDecGOST28147_89_CBC
                             byte[] decryptedData;
                             using (var ms = new MemoryStream())
                             {
-                                var mechanism = new Mechanism((uint)Extended_CKM.CKM_GOST28147_ECB);
+                                var mechanism = Helpers.factories.MechanismFactory.Create((uint)CKM.CKM_GOST28147_ECB);
 
                                 for (var i = 0; i < encryptedData.Length / SampleConstants.Gost28147_89_BlockSize; i++)
                                 {
@@ -195,9 +196,9 @@ namespace Standard.EncDecGOST28147_89_CBC
                                         Console.WriteLine("  Key meshing (set key)");
 
                                         byte[] keyBlobForMeshing = session.Decrypt(mechanism, secretKeyHandle, SampleData.CryptoProKeyMeshingConstant);
-                                        var attributes = new List<ObjectAttribute>
+                                        var attributes = new List<IObjectAttribute>
                                         {
-                                            new ObjectAttribute(CKA.CKA_VALUE, keyBlobForMeshing)
+                                            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_VALUE, keyBlobForMeshing)
                                         };
                                         session.SetAttributeValue(secretKeyHandle, attributes);
 

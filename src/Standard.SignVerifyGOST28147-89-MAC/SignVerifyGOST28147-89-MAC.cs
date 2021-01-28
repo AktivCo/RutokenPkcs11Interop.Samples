@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Common;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Common;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace Standard.SignVerifyGOST28147_89_MAC
 {
@@ -30,14 +31,14 @@ namespace Standard.SignVerifyGOST28147_89_MAC
     class SignVerifyGOST28147_89_MAC
     {
         // Шаблон для поиска симметричного ключа ГОСТ 28147-89
-        static readonly List<ObjectAttribute> SymmetricKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> SymmetricKeyAttributes = new List<IObjectAttribute>
         {
             // Идентификатор ключа
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_SECRET_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_SECRET_KEY),
             // Класс - секретный ключ
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.GostSecretKeyId),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.GostSecretKeyId),
             // Тип ключа - ГОСТ 28147-89
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint) Extended_CKK.CKK_GOST28147)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint) CKK.CKK_GOST28147)
         };
 
         static void Main(string[] args)
@@ -46,22 +47,22 @@ namespace Standard.SignVerifyGOST28147_89_MAC
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Определение поддерживаемых токеном механизмов
                     Console.WriteLine("Checking mechanisms available");
                     List<CKM> mechanisms = slot.GetMechanismList();
                     Errors.Check(" No mechanisms available", mechanisms.Count > 0);
-                    bool isGost28147MACSupported = mechanisms.Contains((CKM)Extended_CKM.CKM_GOST28147_MAC);
+                    bool isGost28147MACSupported = mechanisms.Contains((CKM)CKM.CKM_GOST28147_MAC);
                     Errors.Check(" CKM_GOST28147_MAC isn`t supported!", isGost28147MACSupported);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -71,11 +72,11 @@ namespace Standard.SignVerifyGOST28147_89_MAC
                         {
                             // Получить ключ для выработки имитовставки
                             Console.WriteLine("Getting MAC key...");
-                            List<ObjectHandle> keys = session.FindAllObjects(SymmetricKeyAttributes);
+                            List<IObjectHandle> keys = session.FindAllObjects(SymmetricKeyAttributes);
                             Errors.Check("No keys found", keys.Count > 0);
 
                             // Инициализация операции выработки имитовставки
-                            var hmacMechanism = new Mechanism((uint)Extended_CKM.CKM_GOST28147_MAC);
+                            var hmacMechanism = Helpers.factories.MechanismFactory.Create((uint)CKM.CKM_GOST28147_MAC);
 
                             // Выработать имитовставку
                             Console.WriteLine("Signing data...");

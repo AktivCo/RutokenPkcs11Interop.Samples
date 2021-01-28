@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace PKIExtensions.SignPKCS7_GOST3410_2012_512
 {
@@ -32,29 +32,29 @@ namespace PKIExtensions.SignPKCS7_GOST3410_2012_512
     class SignPKCS7_GOST3410_2012_512
     {
         // Шаблон для поиска закрытого ключа ГОСТ Р 34.10-2012 (512 бит)
-        static readonly List<ObjectAttribute> PrivateKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PrivateKeyAttributes = new List<IObjectAttribute>
         {
             // Объект закрытого ключа
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
             // Закрытый ключ является объектом токена
-            new ObjectAttribute(CKA.CKA_TOKEN, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, true),
             // Идентификатор искомой пары
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.Gost512KeyPairId1),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.Gost512KeyPairId1),
         };
 
         // Шаблон для поиска сертификата ключа подписи
-        static readonly List<ObjectAttribute> CertificateAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> CertificateAttributes = new List<IObjectAttribute>
         {
             // Объект сертификата
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_CERTIFICATE),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_CERTIFICATE),
             // Сертификат является объектом токена
-            new ObjectAttribute(CKA.CKA_TOKEN, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, true),
             // Идентификатор сертификата
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.Gost512KeyPairId1),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.Gost512KeyPairId1),
             // Тип сертификата - X.509
-            new ObjectAttribute(CKA.CKA_CERTIFICATE_TYPE, CKC.CKC_X_509),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CERTIFICATE_TYPE, CKC.CKC_X_509),
             // Категория сертификата - пользовательский
-            new ObjectAttribute(CKA.CKA_CERTIFICATE_CATEGORY, SampleConstants.TokenUserCertificate)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CERTIFICATE_CATEGORY, SampleConstants.TokenUserCertificate)
         };
 
         static void Main(string[] args)
@@ -63,15 +63,15 @@ namespace PKIExtensions.SignPKCS7_GOST3410_2012_512
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -84,12 +84,12 @@ namespace PKIExtensions.SignPKCS7_GOST3410_2012_512
 
                             // Поиск закрытого ключа на токене
                             Console.WriteLine(" Getting private key...");
-                            List<ObjectHandle> privateKeys = session.FindAllObjects(PrivateKeyAttributes);
+                            List<IObjectHandle> privateKeys = session.FindAllObjects(PrivateKeyAttributes);
                             Errors.Check("No private keys found", privateKeys.Count > 0);
 
                             // Поиск сертификата на токене
                             Console.WriteLine(" Getting certificate...");
-                            List<ObjectHandle> certificates = session.FindAllObjects(CertificateAttributes);
+                            List<IObjectHandle> certificates = session.FindAllObjects(CertificateAttributes);
                             Errors.Check("No certificates found", certificates.Count > 0);
 
                             // Подпись данных

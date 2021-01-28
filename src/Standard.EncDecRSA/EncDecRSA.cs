@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace EncDecRSA
 {
@@ -29,25 +30,25 @@ namespace EncDecRSA
     class EncDecRSA
     {
         // Шаблон для поиска открытого ключа RSA
-        static readonly List<ObjectAttribute> RsaPublicKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> RsaPublicKeyAttributes = new List<IObjectAttribute>
         {
             // Идентификатор ключа
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
             // Тип ключа - RSA
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, CKK.CKK_RSA),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, CKK.CKK_RSA),
             // Класс - открытый ключ
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY)
         };
 
         // Шаблон для поиска закрытого ключа RSA
-        static readonly List<ObjectAttribute> RsaPrivateKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> RsaPrivateKeyAttributes = new List<IObjectAttribute>
         {
             // Идентификатор ключа
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
             // Тип ключа - RSA
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, CKK.CKK_RSA),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, CKK.CKK_RSA),
             // Класс - закрытый ключ
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY)
         };
 
         static void Main(string[] args)
@@ -56,15 +57,15 @@ namespace EncDecRSA
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -77,11 +78,11 @@ namespace EncDecRSA
 
                             // Получить ключ для шифрования
                             Console.WriteLine("Getting public key...");
-                            List<ObjectHandle> publicKeys = session.FindAllObjects(RsaPublicKeyAttributes);
+                            List<IObjectHandle> publicKeys = session.FindAllObjects(RsaPublicKeyAttributes);
                             Errors.Check("No public keys found", publicKeys.Count > 0);
 
                             // Инициализировать операцию шифрования
-                            var mechanism = new Mechanism(CKM.CKM_RSA_PKCS);
+                            var mechanism = Helpers.factories.MechanismFactory.Create(CKM.CKM_RSA_PKCS);
 
                             // Зашифровать данные
                             Console.WriteLine("Encrypting...");
@@ -94,7 +95,7 @@ namespace EncDecRSA
 
                             // Получить ключ для расшифрования
                             Console.WriteLine("Getting private key...");
-                            List<ObjectHandle> privateKeys = session.FindAllObjects(RsaPrivateKeyAttributes);
+                            List<IObjectHandle> privateKeys = session.FindAllObjects(RsaPrivateKeyAttributes);
                             Errors.Check("No private keys found", privateKeys.Count > 0);
 
                             // Расшифровать данные

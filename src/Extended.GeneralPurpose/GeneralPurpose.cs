@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
-using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Common;
-using RutokenPkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace Extended.GeneralPurpose
 {
@@ -36,15 +36,15 @@ namespace Extended.GeneralPurpose
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Получить расширенную информацию о подключенном токене
                     Console.WriteLine("Getting extended token information...");
-                    TokenInfoExtended tokenInfo = slot.GetTokenInfoExtended();
+                    ITokenInfoExtended tokenInfo = slot.GetTokenInfoExtended();
 
                     // Определить класс токена
                     var isRutokenS = (tokenInfo.TokenClass == RutokenClass.S);
@@ -52,7 +52,7 @@ namespace Extended.GeneralPurpose
                     Console.WriteLine("Extended token information has been got successfully");
 
                     Console.WriteLine("Extended initializing token...");
-                    var rutokenInitParam = new RutokenInitParam(SampleConstants.SecurityOfficerPin, SampleConstants.NewUserPin,
+                    var rutokenInitParam = Helpers.factories.RutokenInitParamFactory.Create(SampleConstants.SecurityOfficerPin, SampleConstants.NewUserPin,
                         SampleConstants.TokenStdLabel,
                         new List<RutokenFlag> { RutokenFlag.AdminChangeUserPin, RutokenFlag.UserChangeUserPin }, isRutokenS ? (uint)1 : 6, isRutokenS ? (uint)1 : 6,
                         SampleConstants.MaxAdminRetryCount, SampleConstants.MaxUserRetryCount, smMode: 0);
@@ -61,7 +61,7 @@ namespace Extended.GeneralPurpose
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         Console.WriteLine("Extended PIN function test...");
                         // Пробуем заблокировать PIN-код Пользователя
@@ -147,7 +147,8 @@ namespace Extended.GeneralPurpose
                                     Console.WriteLine("(Rutoken PINPad)");
                                     break;
                                 default:
-                                    throw new ArgumentOutOfRangeException();
+                                    Console.WriteLine("Unknown token type: " + tokenInfo.TokenType);
+                                    break;
                             }
                             Console.WriteLine(" Protocol number: 0x{0:X}", tokenInfo.ProtocolNumber);
                             Console.WriteLine(" Microcode number: 0x{0:X}", tokenInfo.MicrocodeNumber);

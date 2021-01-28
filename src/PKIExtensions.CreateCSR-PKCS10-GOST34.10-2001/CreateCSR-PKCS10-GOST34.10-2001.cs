@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Common;
-using RutokenPkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace PKIExtensions.CreateCSR_PKCS10_GOST3410_2001
 {
@@ -32,43 +32,43 @@ namespace PKIExtensions.CreateCSR_PKCS10_GOST3410_2001
     class CreateCSR_PKCS10_GOST3410_2001
     {
         // Шаблон для создания открытого ключа ГОСТ Р 34.10-2001
-        static readonly List<ObjectAttribute> PublicKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PublicKeyAttributes = new List<IObjectAttribute>
         {
             // Объект открытого ключа
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY),
             // Метка ключа
-            new ObjectAttribute(CKA.CKA_LABEL, SampleConstants.GostPublicKeyLabel1),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_LABEL, SampleConstants.GostPublicKeyLabel1),
             // Идентификатор ключевой пары #1 (должен совпадать у открытого и закрытого ключей)
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.GostKeyPairId1),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.GostKeyPairId1),
             // Тип ключа - ГОСТ Р 34.10-2001
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint) Extended_CKK.CKK_GOSTR3410),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint) CKK.CKK_GOSTR3410),
             // Открытый ключ является объектом токена
-            new ObjectAttribute(CKA.CKA_TOKEN, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, true),
             // Ключ доступен без аутентификации
-            new ObjectAttribute(CKA.CKA_PRIVATE, false),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_PRIVATE, false),
             // Параметры алгоритма ГОСТ Р 34.10-2001
-            new ObjectAttribute((uint) Extended_CKA.CKA_GOSTR3410_PARAMS, SampleConstants.GostR3410Parameters)
+            Helpers.factories.ObjectAttributeFactory.Create((uint) CKA.CKA_GOSTR3410_PARAMS, SampleConstants.GostR3410Parameters)
         };
 
         // Шаблон для создания закрытого ключа ГОСТ Р 34.10-2001
-        static readonly List<ObjectAttribute> PrivateKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PrivateKeyAttributes = new List<IObjectAttribute>
         {
             // Объект закрытого ключа
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
             // Метка ключа
-            new ObjectAttribute(CKA.CKA_LABEL, SampleConstants.GostPrivateKeyLabel1),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_LABEL, SampleConstants.GostPrivateKeyLabel1),
             // Идентификатор ключевой пары #1 (должен совпадать у открытого и закрытого ключей)
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.GostKeyPairId1),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.GostKeyPairId1),
             // Тип ключа - ГОСТ Р 34.10-2001
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint) Extended_CKK.CKK_GOSTR3410),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint) CKK.CKK_GOSTR3410),
             // Открытый ключ является объектом токена
-            new ObjectAttribute(CKA.CKA_TOKEN, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, true),
             // Ключ доступен без аутентификации
-            new ObjectAttribute(CKA.CKA_PRIVATE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_PRIVATE, true),
             // Ключ поддерживает выработку общих ключей (VKO)
-            new ObjectAttribute(CKA.CKA_DERIVE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_DERIVE, true),
             // Параметры алгоритма ГОСТ Р 34.10-2001
-            new ObjectAttribute((uint) Extended_CKA.CKA_GOSTR3410_PARAMS, SampleConstants.GostR3410Parameters)
+            Helpers.factories.ObjectAttributeFactory.Create((uint) CKA.CKA_GOSTR3410_PARAMS, SampleConstants.GostR3410Parameters)
         };
 
         // Список полей DN (Distinguished Name)
@@ -115,22 +115,22 @@ namespace PKIExtensions.CreateCSR_PKCS10_GOST3410_2001
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Определение поддерживаемых токеном механизмов
                     Console.WriteLine("Checking mechanisms available");
                     List<CKM> mechanisms = slot.GetMechanismList();
                     Errors.Check(" No mechanisms available", mechanisms.Count > 0);
-                    bool isGostR3410Supported = mechanisms.Contains((CKM)Extended_CKM.CKM_GOSTR3410_KEY_PAIR_GEN);
+                    bool isGostR3410Supported = mechanisms.Contains((CKM)CKM.CKM_GOSTR3410_KEY_PAIR_GEN);
                     Errors.Check(" CKM_GOSTR3410_KEY_PAIR_GEN isn`t supported!", isGostR3410Supported);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -144,10 +144,10 @@ namespace PKIExtensions.CreateCSR_PKCS10_GOST3410_2001
                             // Генерация ключевой пары на токене
                             // Определить механизм генерации ключа
                             Console.WriteLine("Generating GOST R 34.10-2001 exchange key pairs...");
-                            var mechanism = new Mechanism((uint)Extended_CKM.CKM_GOSTR3410_KEY_PAIR_GEN);
+                            var mechanism = Helpers.factories.MechanismFactory.Create((uint)CKM.CKM_GOSTR3410_KEY_PAIR_GEN);
 
-                            ObjectHandle publicKeyHandle;
-                            ObjectHandle privateKeyHandle;
+                            IObjectHandle publicKeyHandle;
+                            IObjectHandle privateKeyHandle;
                             session.GenerateKeyPair(mechanism, PublicKeyAttributes, PrivateKeyAttributes, out publicKeyHandle, out privateKeyHandle);
                             Errors.Check("Invalid public key handle", publicKeyHandle.ObjectId != CK.CK_INVALID_HANDLE);
                             Errors.Check("Invalid private key handle", privateKeyHandle.ObjectId != CK.CK_INVALID_HANDLE);

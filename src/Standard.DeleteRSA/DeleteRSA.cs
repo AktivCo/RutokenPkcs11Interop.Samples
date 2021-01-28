@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace DeleteRSA
 {
@@ -28,12 +29,12 @@ namespace DeleteRSA
     {
         // Шаблон для поиска ключевой пары RSA
         // (Ключевая пара для подписи и шифрования)
-        static readonly List<ObjectAttribute> KeyPairAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> KeyPairAttributes = new List<IObjectAttribute>
         {
             // Идентификатор ключевой пары
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
             // Тип ключа - RSA
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, CKK.CKK_RSA)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, CKK.CKK_RSA)
         };
 
         static void Main(string[] args)
@@ -42,15 +43,15 @@ namespace DeleteRSA
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -60,7 +61,7 @@ namespace DeleteRSA
                         {
                             // Получить массив хэндлов объектов, соответствующих критериям поиска
                             Console.WriteLine("Getting RSA key pair...");
-                            List<ObjectHandle> foundObjects = session.FindAllObjects(KeyPairAttributes);
+                            List<IObjectHandle> foundObjects = session.FindAllObjects(KeyPairAttributes);
 
                             // Удалить ключи
                             if (foundObjects.Count > 0)

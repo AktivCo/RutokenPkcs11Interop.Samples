@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Text;
 using Net.Pkcs11Interop.Common;
-using Net.Pkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
 
-namespace RutokenPkcs11Interop.Samples.Common
+namespace Net.RutokenPkcs11Interop.Samples.Common
 {
     public static class Helpers
     {
-        public static Slot GetUsableSlot(Pkcs11 pkcs11)
+        public static RutokenPkcs11InteropFactories factories = new RutokenPkcs11InteropFactories();
+
+        public static IRutokenSlot GetUsableSlot(IRutokenPkcs11Library pkcs11)
         {
             // Получить список слотов c подключенными токенами
-            List<Slot> slots = pkcs11.GetSlotList(SlotsType.WithTokenPresent);
+            List<IRutokenSlot> slots = pkcs11.GetRutokenSlotList(SlotsType.WithTokenPresent);
 
             // Проверить, что слоты найдены
             if (slots == null)
@@ -22,7 +24,7 @@ namespace RutokenPkcs11Interop.Samples.Common
                 throw new InvalidOperationException("No available slots");
 
             // Получить первый доступный слот
-            Slot slot = slots[0];
+            IRutokenSlot slot = slots[0];
 
             return slot;
         }

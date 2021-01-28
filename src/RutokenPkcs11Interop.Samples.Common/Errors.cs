@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RutokenPkcs11Interop.Samples.Common
+namespace Net.RutokenPkcs11Interop.Samples.Common
 {
     public static class Errors
     {

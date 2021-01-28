@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace SignVerifyRSA
 {
@@ -29,21 +30,21 @@ namespace SignVerifyRSA
     class SignVerifyRSA
     {
         // Шаблон для поиска открытого ключа RSA
-        static readonly List<ObjectAttribute> PublicKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PublicKeyAttributes = new List<IObjectAttribute>
         {
             // ID пары
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
             // Класс - открытый ключ
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY),
         };
 
         // Шаблон для поиска закрытого ключа RSA
-        static readonly List<ObjectAttribute> PrivateKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PrivateKeyAttributes = new List<IObjectAttribute>
         {
             // ID пары
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
             // Класс - закрытый ключ
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY)
         };
 
         static void Main(string[] args)
@@ -52,11 +53,11 @@ namespace SignVerifyRSA
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Определение поддерживаемых токеном механизмов
                     Console.WriteLine("Checking mechanisms available");
@@ -69,7 +70,7 @@ namespace SignVerifyRSA
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -82,11 +83,11 @@ namespace SignVerifyRSA
 
                             // Получить приватный ключ для генерации подписи
                             Console.WriteLine("Getting private key...");
-                            List<ObjectHandle> privateKeys = session.FindAllObjects(PrivateKeyAttributes);
+                            List<IObjectHandle> privateKeys = session.FindAllObjects(PrivateKeyAttributes);
                             Errors.Check("No private keys found", privateKeys.Count > 0);
 
                             // Инициализировать операцию хэширования
-                            var mechanism = new Mechanism(CKM.CKM_SHA_1);
+                            var mechanism = Helpers.factories.MechanismFactory.Create(CKM.CKM_SHA_1);
 
                             // Вычислить хэш-код данных
                             Console.WriteLine("Hashing data...");
@@ -98,7 +99,7 @@ namespace SignVerifyRSA
                             Console.WriteLine("Hashing has been completed successfully");
 
                             // Инициализация операции подписи данных по алгоритму RSA
-                            var signMechanism = new Mechanism(CKM.CKM_RSA_PKCS);
+                            var signMechanism = Helpers.factories.MechanismFactory.Create(CKM.CKM_RSA_PKCS);
 
                             // Подписать данные
                             Console.WriteLine("Signing data...");
@@ -111,7 +112,7 @@ namespace SignVerifyRSA
 
                             // Получить публичный ключ для проверки подписи
                             Console.WriteLine("Getting public key...");
-                            List<ObjectHandle> publicKeys = session.FindAllObjects(PublicKeyAttributes);
+                            List<IObjectHandle> publicKeys = session.FindAllObjects(PublicKeyAttributes);
                             Errors.Check("No public keys found", publicKeys.Count > 0);
 
                             // Проверка подписи для данных

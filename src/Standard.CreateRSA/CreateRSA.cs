@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace CreateRSA
 {
@@ -29,44 +30,44 @@ namespace CreateRSA
     {
         // Шаблон для генерации открытого ключа RSA
         // (Ключевая пара для подписи и шифрования)
-        static readonly List<ObjectAttribute> PublicKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PublicKeyAttributes = new List<IObjectAttribute>
         {
             // Класс - открытый ключ
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY),
             // Метка ключа
-            new ObjectAttribute(CKA.CKA_LABEL, SampleConstants.RsaPublicKeyLabel),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_LABEL, SampleConstants.RsaPublicKeyLabel),
             // Идентификатор ключевой пары (должен совпадать у открытого и закрытого ключей)
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
             // Тип ключа - RSA
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, CKK.CKK_RSA),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, CKK.CKK_RSA),
             // Ключ является объектом токена
-            new ObjectAttribute(CKA.CKA_TOKEN, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, true),
             // Ключ предназначен для зашифрования
-            new ObjectAttribute(CKA.CKA_ENCRYPT, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ENCRYPT, true),
             // Ключ доступен без аутентификации на токене
-            new ObjectAttribute(CKA.CKA_PRIVATE, false),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_PRIVATE, false),
             // Длина модуля ключа
-            new ObjectAttribute(CKA.CKA_MODULUS_BITS, SampleConstants.RsaModulusBits)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_MODULUS_BITS, SampleConstants.RsaModulusBits)
         };
 
         // Шаблон для генерации закрытого ключа RSA
         // (Ключевая пара для подписи и шифрования)
-        static readonly List<ObjectAttribute> PrivateKeyAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PrivateKeyAttributes = new List<IObjectAttribute>
         {
             // Класс - закрытый ключ
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
             // Метка ключа
-            new ObjectAttribute(CKA.CKA_LABEL, SampleConstants.RsaPrivateKeyLabel),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_LABEL, SampleConstants.RsaPrivateKeyLabel),
             // Идентификатор ключевой пары (должен совпадать у открытого и закрытого ключей)
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.RsaKeyPairId),
             // Тип ключа - RSA
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, CKK.CKK_RSA),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, CKK.CKK_RSA),
             // Ключ предназначен для расшифрования
-            new ObjectAttribute(CKA.CKA_TOKEN, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, true),
             // Ключ является объектом токена
-            new ObjectAttribute(CKA.CKA_DECRYPT, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_DECRYPT, true),
             // Ключ доступен только после аутентификации на токене
-            new ObjectAttribute(CKA.CKA_PRIVATE, true)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_PRIVATE, true)
         };
 
         static void Main(string[] args)
@@ -75,11 +76,11 @@ namespace CreateRSA
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Определение поддерживаемых токеном механизмов
                     Console.WriteLine("Checking mechanisms available");
@@ -90,7 +91,7 @@ namespace CreateRSA
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -100,11 +101,11 @@ namespace CreateRSA
                         {
                             // Определить механизм генерации ключа
                             Console.WriteLine("Generating RSA key pair...");
-                            var mechanism = new Mechanism(CKM.CKM_RSA_PKCS_KEY_PAIR_GEN);
+                            var mechanism = Helpers.factories.MechanismFactory.Create(CKM.CKM_RSA_PKCS_KEY_PAIR_GEN);
 
                             // Сгенерировать ключевую пару RSA
-                            ObjectHandle publicKeyHandle;
-                            ObjectHandle privateKeyHandle;
+                            IObjectHandle publicKeyHandle;
+                            IObjectHandle privateKeyHandle;
                             session.GenerateKeyPair(mechanism, PublicKeyAttributes, PrivateKeyAttributes, out publicKeyHandle, out privateKeyHandle);
                             Errors.Check("Invalid public key handle", publicKeyHandle.ObjectId != CK.CK_INVALID_HANDLE);
                             Errors.Check("Invalid private key handle", privateKeyHandle.ObjectId != CK.CK_INVALID_HANDLE);

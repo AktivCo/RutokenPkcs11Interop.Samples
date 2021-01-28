@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace PKIExtensions.GetCertificateInfo_GOST3410_2012_512
 {
@@ -29,20 +29,20 @@ namespace PKIExtensions.GetCertificateInfo_GOST3410_2012_512
     class GetCertificateInfo_GOST3410_2012_512
     {
         // Шаблон для поиска сертификата
-        static readonly List<ObjectAttribute> CertificateAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> CertificateAttributes = new List<IObjectAttribute>
         {
             // Объект сертификата
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_CERTIFICATE),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_CERTIFICATE),
             // Сертификат является объектом токена
-            new ObjectAttribute(CKA.CKA_TOKEN, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, true),
             // Сертификат доступен без аутентификации
-            new ObjectAttribute(CKA.CKA_PRIVATE, false),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_PRIVATE, false),
             // Тип сертификата - X.509
-            new ObjectAttribute(CKA.CKA_CERTIFICATE_TYPE, CKC.CKC_X_509),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CERTIFICATE_TYPE, CKC.CKC_X_509),
             // Идентификатор сертификата, должен совпадать с CKA_ID соответствующей ключевой пары
-            new ObjectAttribute(CKA.CKA_ID, SampleConstants.Gost512KeyPairId1),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_ID, SampleConstants.Gost512KeyPairId1),
             // Категория сертификата - пользовательский
-            new ObjectAttribute(CKA.CKA_CERTIFICATE_CATEGORY, SampleConstants.TokenUserCertificate)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CERTIFICATE_CATEGORY, SampleConstants.TokenUserCertificate)
         };
 
         static void Main(string[] args)
@@ -51,15 +51,15 @@ namespace PKIExtensions.GetCertificateInfo_GOST3410_2012_512
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");

@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Common;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Common;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace HashGOST3411_94
 {
@@ -32,22 +33,22 @@ namespace HashGOST3411_94
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Определение поддерживаемых токеном механизмов
                     Console.WriteLine("Checking mechanisms available");
                     List<CKM> mechanisms = slot.GetMechanismList();
                     Errors.Check(" No mechanisms available", mechanisms.Count > 0);
-                    bool isGostR3411Supported = mechanisms.Contains((CKM) Extended_CKM.CKM_GOSTR3411);
+                    bool isGostR3411Supported = mechanisms.Contains((CKM) CKM.CKM_GOSTR3411);
                     Errors.Check(" CKM_GOSTR3411 isn`t supported!", isGostR3411Supported);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -59,7 +60,7 @@ namespace HashGOST3411_94
                             byte[] sourceData = SampleData.Digest_Gost3411_SourceData;
 
                             // Инициализировать операцию хэширования
-                            var mechanism = new Mechanism((uint)Extended_CKM.CKM_GOSTR3411);
+                            var mechanism = Helpers.factories.MechanismFactory.Create((uint)CKM.CKM_GOSTR3411);
 
                             // Вычислить хэш-код данных
                             Console.WriteLine("Hashing data...");

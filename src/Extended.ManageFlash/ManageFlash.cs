@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Common;
-using RutokenPkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace Extended.ManageFlash
 {
@@ -37,11 +37,11 @@ namespace Extended.ManageFlash
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Получить расширенную информацию о подключенном токене
                     var tokenInfo = slot.GetTokenInfoExtended();
@@ -78,12 +78,12 @@ namespace Extended.ManageFlash
                     ulong volumeHiSize = driveSize / 8;
                     ulong volumeCdSize = driveSize - volumeRwSize - volumeRoSize - volumeHiSize;
 
-                    var initParams = new List<VolumeFormatInfoExtended>()
+                    var initParams = new List<IVolumeFormatInfoExtended>()
                     {
-                        new VolumeFormatInfoExtended(volumeRwSize, FlashAccessMode.Readwrite, CKU.CKU_USER, 0),
-                        new VolumeFormatInfoExtended(volumeRoSize, FlashAccessMode.Readonly, CKU.CKU_SO, 0),
-                        new VolumeFormatInfoExtended(volumeHiSize, FlashAccessMode.Hidden, (CKU)SampleConstants.LocalPinId1, 0),
-                        new VolumeFormatInfoExtended(volumeCdSize, FlashAccessMode.Cdrom, (CKU)SampleConstants.LocalPinId2, 0),
+                        Helpers.factories.VolumeFormatInfoExtendedFactory.Create(volumeRwSize, FlashAccessMode.Readwrite, CKU.CKU_USER, 0),
+                        Helpers.factories.VolumeFormatInfoExtendedFactory.Create(volumeRoSize, FlashAccessMode.Readonly, CKU.CKU_SO, 0),
+                        Helpers.factories.VolumeFormatInfoExtendedFactory.Create(volumeHiSize, FlashAccessMode.Hidden, (CKU)SampleConstants.LocalPinId1, 0),
+                        Helpers.factories.VolumeFormatInfoExtendedFactory.Create(volumeCdSize, FlashAccessMode.Cdrom, (CKU)SampleConstants.LocalPinId2, 0),
                     };
 
                     Console.WriteLine(" Formatting drive...");

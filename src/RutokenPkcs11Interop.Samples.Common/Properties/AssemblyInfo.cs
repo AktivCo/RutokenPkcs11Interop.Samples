@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("RutokenPkcs11Interop.Samples.Common")]
+[assembly: AssemblyTitle("Net.RutokenPkcs11Interop.Samples.Common")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("RutokenPkcs11Interop.Samples.Common")]
+[assembly: AssemblyProduct("Net.RutokenPkcs11Interop.Samples.Common")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

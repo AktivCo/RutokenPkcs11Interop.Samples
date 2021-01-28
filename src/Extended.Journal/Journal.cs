@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using RutokenPkcs11Interop.Common;
-using RutokenPkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop.Samples.Common;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace Extended.Journal
 {
@@ -34,58 +34,58 @@ namespace Extended.Journal
     {
         // Шаблон для генерации открытого ключа ГОСТ Р 34.10-2001 для проверки
         // цифровой подписи журнала
-        static readonly List<ObjectAttribute> PublicKeyGenerationAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PublicKeyGenerationAttributes = new List<IObjectAttribute>
         {
             // Объект открытого ключа
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY),
             // Тип ключа ГОСТ Р 34.10-2001
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint)Extended_CKK.CKK_GOSTR3410),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint)CKK.CKK_GOSTR3410),
             // Ключ является объектом токена
-            new ObjectAttribute(CKA.CKA_TOKEN, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, true),
             // Ключ доступен без аутентификации
-            new ObjectAttribute(CKA.CKA_PRIVATE, false),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_PRIVATE, false),
             // Ключ предназначен для проверки цифровой подписи журнала
-            new ObjectAttribute((uint)Extended_CKA.CKA_VENDOR_KEY_JOURNAL, true)
+            Helpers.factories.ObjectAttributeFactory.Create((uint)Extended_CKA.CKA_VENDOR_KEY_JOURNAL, true)
         };
 
         // Шаблон для генерации закрытого ключа ГОСТ Р 34.10-2001 для цифровой
         // подписи журнала
-        static readonly List<ObjectAttribute> PrivateKeyGenerationAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PrivateKeyGenerationAttributes = new List<IObjectAttribute>
         {
             // Объект закрытого ключа
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
             // Тип ключа ГОСТ Р 34.10-2001
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint)Extended_CKK.CKK_GOSTR3410),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint)CKK.CKK_GOSTR3410),
             // Ключ является объектом токена
-            new ObjectAttribute(CKA.CKA_TOKEN, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_TOKEN, true),
             // Ключ доступен только после авторизации на токене
-            new ObjectAttribute(CKA.CKA_PRIVATE, true),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_PRIVATE, true),
             // Ключ предназначен для проверки цифровой подписи журнала
-            new ObjectAttribute((uint)Extended_CKA.CKA_VENDOR_KEY_JOURNAL, true),
+            Helpers.factories.ObjectAttributeFactory.Create((uint)Extended_CKA.CKA_VENDOR_KEY_JOURNAL, true),
         };
 
         // Шаблон для поиска открытого ключа ГОСТ Р 34.10-2001 для проверки
         // цифровой подписи журнала
-        static readonly List<ObjectAttribute> PublicKeyFindAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PublicKeyFindAttributes = new List<IObjectAttribute>
         {
             // Ключ предназначен для проверки цифровой подписи журнала
-            new ObjectAttribute((uint)Extended_CKA.CKA_VENDOR_KEY_JOURNAL, true),
+            Helpers.factories.ObjectAttributeFactory.Create((uint)Extended_CKA.CKA_VENDOR_KEY_JOURNAL, true),
             // Объект открытого ключа
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PUBLIC_KEY),
             // Тип ключа ГОСТ Р 34.10-2001
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint)Extended_CKK.CKK_GOSTR3410)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint)CKK.CKK_GOSTR3410)
         };
 
         // Шаблон для поиска закрытого ключа ГОСТ Р 34.10-2001 для цифровой
         // подписи журнала
-        static readonly List<ObjectAttribute> PrivateKeyFindAttributes = new List<ObjectAttribute>
+        static readonly List<IObjectAttribute> PrivateKeyFindAttributes = new List<IObjectAttribute>
         {
             // Ключ предназначен для проверки цифровой подписи журнала
-            new ObjectAttribute((uint)Extended_CKA.CKA_VENDOR_KEY_JOURNAL, true),
+            Helpers.factories.ObjectAttributeFactory.Create((uint)Extended_CKA.CKA_VENDOR_KEY_JOURNAL, true),
             // Объект закрытого ключа
-            new ObjectAttribute(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_PRIVATE_KEY),
             // Тип ключа ГОСТ Р 34.10-2001
-            new ObjectAttribute(CKA.CKA_KEY_TYPE, (uint)Extended_CKK.CKK_GOSTR3410)
+            Helpers.factories.ObjectAttributeFactory.Create(CKA.CKA_KEY_TYPE, (uint)CKK.CKK_GOSTR3410)
         };
 
         static void Main(string[] args)
@@ -94,26 +94,26 @@ namespace Extended.Journal
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить доступный слот
                     Console.WriteLine("Checking tokens available");
-                    Slot slot = Helpers.GetUsableSlot(pkcs11);
+                    IRutokenSlot slot = Helpers.GetUsableSlot(pkcs11);
 
                     // Определение поддерживаемых токеном механизмов
                     Console.WriteLine("Checking mechanisms available");
                     List<CKM> mechanisms = slot.GetMechanismList();
                     Errors.Check(" No mechanisms available", mechanisms.Count > 0);
-                    bool isGostR3410GenSupported = mechanisms.Contains((CKM)Extended_CKM.CKM_GOSTR3410_KEY_PAIR_GEN);
-                    bool isGostR3410Supported = mechanisms.Contains((CKM)Extended_CKM.CKM_GOSTR3410);
-                    bool isGostR3411Supported = mechanisms.Contains((CKM)Extended_CKM.CKM_GOSTR3411);
+                    bool isGostR3410GenSupported = mechanisms.Contains((CKM)CKM.CKM_GOSTR3410_KEY_PAIR_GEN);
+                    bool isGostR3410Supported = mechanisms.Contains((CKM)CKM.CKM_GOSTR3410);
+                    bool isGostR3411Supported = mechanisms.Contains((CKM)CKM.CKM_GOSTR3411);
                     Errors.Check(" CKM_GOSTR3410_KEY_PAIR_GEN isn`t supported!", isGostR3410GenSupported);
                     Errors.Check(" CKM_GOSTR3410 isn`t supported!", isGostR3410Supported);
                     Errors.Check(" CKM_GOSTR3411 isn`t supported!", isGostR3411Supported);
 
                     // Открыть RW сессию в первом доступном слоте
                     Console.WriteLine("Opening RW session");
-                    using (Session session = slot.OpenSession(SessionType.ReadWrite))
+                    using (IRutokenSession session = slot.OpenRutokenSession(SessionType.ReadWrite))
                     {
                         // Выполнить аутентификацию Пользователя
                         Console.WriteLine("User authentication");
@@ -134,17 +134,17 @@ namespace Extended.Journal
 
                             // Получить хэндл закрытого ключа журнальной пары
                             Console.WriteLine("Getting journal private key...");
-                            List<ObjectHandle> privateKeys = session.FindAllObjects(PrivateKeyFindAttributes);
+                            List<IObjectHandle> privateKeys = session.FindAllObjects(PrivateKeyFindAttributes);
 
-                            ObjectHandle journalPublicKeyHandle;
-                            ObjectHandle journalPrivateKeyHandle;
+                            IObjectHandle journalPublicKeyHandle;
+                            IObjectHandle journalPrivateKeyHandle;
                             if (privateKeys.Count <= 0)
                             {
                                 Console.WriteLine(
                                     "No journal private keys found! Journal key pair will be generated");
 
                                 // Генерировать журнальную ключевую пару
-                                var keyGenMechanism = new Mechanism((uint)Extended_CKM.CKM_GOSTR3410_KEY_PAIR_GEN);
+                                var keyGenMechanism = Helpers.factories.MechanismFactory.Create((uint)CKM.CKM_GOSTR3410_KEY_PAIR_GEN);
 
                                 session.GenerateKeyPair(keyGenMechanism, PublicKeyGenerationAttributes, PrivateKeyGenerationAttributes,
                                     out journalPublicKeyHandle, out journalPrivateKeyHandle);
@@ -158,7 +158,7 @@ namespace Extended.Journal
 
                             // Сформировать хэш-код журнала для цифровой подписи
                             Console.WriteLine("Hashing journal...");
-                            var digestMechanism = new Mechanism((uint)Extended_CKM.CKM_GOSTR3411);
+                            var digestMechanism = Helpers.factories.MechanismFactory.Create((uint)CKM.CKM_GOSTR3411);
                             byte[] journalHash = session.Digest(digestMechanism, journal);
 
                             // Распечатать буфер, содержащий хэш-код
@@ -168,7 +168,7 @@ namespace Extended.Journal
 
                             // Сформировать цифровую подпись журнала по алгоритму ГОСТ Р 34.10 - 2001
                             Console.WriteLine("Signing journal...");
-                            var journalSignMechanism = new Mechanism((uint)Extended_CKM.CKM_GOSTR3410);
+                            var journalSignMechanism = Helpers.factories.MechanismFactory.Create((uint)CKM.CKM_GOSTR3410);
                             byte[] journalSignature = session.Sign(journalSignMechanism, journalPrivateKeyHandle, journalHash);
 
                             // Распечатать буфер, содержащий цифровую подпись журнала
@@ -178,7 +178,7 @@ namespace Extended.Journal
 
                             // Получать хэндл открытого ключа журнальной пары
                             Console.WriteLine("Getting journal public key...");
-                            List<ObjectHandle> publicKeys = session.FindAllObjects(PublicKeyFindAttributes);
+                            List<IObjectHandle> publicKeys = session.FindAllObjects(PublicKeyFindAttributes);
                             Errors.Check("No public keys found", publicKeys.Count > 0);
                             journalPublicKeyHandle = publicKeys[0];
 

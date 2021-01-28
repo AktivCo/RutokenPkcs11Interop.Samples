@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Samples.Common;
 
 namespace WaitForSlotEvent
 {
@@ -26,7 +29,7 @@ namespace WaitForSlotEvent
 
     class WaitForSlotEvent
     {
-        private static void MonitoringTask(Pkcs11 pkcs11, int taskNumber)
+        private static void MonitoringTask(IRutokenPkcs11Library pkcs11, int taskNumber)
         {
             while (true)
             {
@@ -36,12 +39,12 @@ namespace WaitForSlotEvent
                 pkcs11.WaitForSlotEvent(WaitType.Blocking, out eventOccured, out slotId);
 
                 // Получить информацию о слоте
-                Slot slot = pkcs11.GetSlotList(SlotsType.WithOrWithoutTokenPresent).Single(x => x.SlotId == slotId);
-                SlotInfo slotInfo = slot.GetSlotInfo();
+                IRutokenSlot slot = pkcs11.GetRutokenSlotList(SlotsType.WithOrWithoutTokenPresent).Single(x => x.SlotId == slotId);
+                ISlotInfo slotInfo = slot.GetSlotInfo();
 
                 // Распечатать информацию о номере потока и событии в слоте
                 Console.WriteLine(" Monitoring thread: {0}", taskNumber);
-                Console.WriteLine(" Slot ID: {0}", slotId);
+                Console.WriteLine(" IRutokenSlot ID: {0}", slotId);
                 Console.WriteLine(slotInfo.SlotFlags.TokenPresent
                     ? "  Token has been attached!"
                     : "  Token has been detached!");
@@ -54,7 +57,7 @@ namespace WaitForSlotEvent
             {
                 // Инициализировать библиотеку
                 Console.WriteLine("Library initialization");
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = Helpers.factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(Helpers.factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     Console.WriteLine("Please attach or detach Rutoken and press Enter...");
                     Console.ReadKey();
@@ -72,10 +75,10 @@ namespace WaitForSlotEvent
                         }
 
                         // Получить информацию о слоте
-                        Slot slot = pkcs11.GetSlotList(SlotsType.WithOrWithoutTokenPresent).Single(x => x.SlotId == slotId);
-                        SlotInfo slotInfo = slot.GetSlotInfo();
-                        Console.WriteLine(" Slot ID: {0}", slotId);
-                        Console.WriteLine(" Slot description: {0}", slotInfo.SlotDescription);
+                        IRutokenSlot slot = pkcs11.GetRutokenSlotList(SlotsType.WithOrWithoutTokenPresent).Single(x => x.SlotId == slotId);
+                        ISlotInfo slotInfo = slot.GetSlotInfo();
+                        Console.WriteLine(" IRutokenSlot ID: {0}", slotId);
+                        Console.WriteLine(" IRutokenSlot description: {0}", slotInfo.SlotDescription);
                         Console.WriteLine(" Manufacturer: {0}", slotInfo.ManufacturerId);
                         Console.WriteLine(" Flags: 0x{0:X}", slotInfo.SlotFlags.Flags);
                         Console.WriteLine(" Hardware version: {0}", slotInfo.HardwareVersion);
