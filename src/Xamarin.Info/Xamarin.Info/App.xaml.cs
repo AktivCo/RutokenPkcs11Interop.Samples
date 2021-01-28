@@ -7,13 +7,9 @@ namespace Xamarin.Info
 {
     public partial class App : Application
     {
-        public static IPlatformSpecificFunctions platformSpecificFunctions { get; set; }
-
-        public App(IPlatformSpecificFunctions funcs)
+        public App()
         {
             InitializeComponent();
-
-            platformSpecificFunctions = funcs;
 
             MainPage = new MainPage();
         }

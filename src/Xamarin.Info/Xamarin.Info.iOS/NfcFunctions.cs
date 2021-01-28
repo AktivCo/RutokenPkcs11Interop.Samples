@@ -5,7 +5,7 @@ using ObjCRuntime;
 
 namespace Xamarin.Info.iOS
 {
-    public class iOsFunctions : IPlatformSpecificFunctions
+    public class NfcFunctions
     {
         // Declare the signature of the method that users would have to provide
         public delegate void startNFCCallback(IntPtr error);

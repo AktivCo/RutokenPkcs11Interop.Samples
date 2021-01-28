@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aktiv.RutokenPkcs11Interop" Version="2.0.11" />
+    <PackageReference Include="RutokenPkcs11Interop" Version="5.1.1" />
     <PackageReference Include="Xamarin.Forms" Version="4.7.0.1260" />
   </ItemGroup>
 

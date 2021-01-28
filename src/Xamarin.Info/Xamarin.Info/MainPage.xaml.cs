@@ -1,11 +1,13 @@
-﻿using Net.Pkcs11Interop.Common;
-using Net.Pkcs11Interop.HighLevelAPI;
-using RutokenPkcs11Interop;
-using System;
+﻿using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using RutokenPkcs11Interop.Common;
+
+using Net.Pkcs11Interop.Common;
+using Net.RutokenPkcs11Interop.HighLevelAPI;
+using Net.RutokenPkcs11Interop;
+using Net.RutokenPkcs11Interop.Common;
+
 using Xamarin.Forms;
 
 namespace Xamarin.Info
@@ -41,7 +43,7 @@ namespace Xamarin.Info
             }
         }
 
-        private bool WaitingForToken(Pkcs11 pkcs11, ref bool stopFlag)
+        private bool WaitingForToken(IRutokenPkcs11Library pkcs11, ref bool stopFlag)
         {
             for (; ; )
             {
@@ -61,24 +63,29 @@ namespace Xamarin.Info
 
         private async void Button_OnClicked(object sender, EventArgs e)
         {
+#if __IOS__
+            string token_type = await DisplayActionSheet("Использовать:", "Cancel", null, "NFC Рутокен", "BT Рутокен");
+            bool use_nfc = token_type == "NFC Рутокен";
+#else
             bool use_nfc = false;
-            if (Device.RuntimePlatform == Device.iOS)
-            {
-                string token_type = await DisplayActionSheet("Использовать:", "Cancel", null, "NFC Рутокен", "BT Рутокен");
-                use_nfc = token_type == "NFC Рутокен";
-            }
+#endif
+
             try
             {
                 bool stopFlag = false;
                 if (use_nfc)
                 {
+#if __IOS__
                     Action<string> callback = x => { Console.WriteLine(x); stopFlag = true; };
-                    App.platformSpecificFunctions.startNFC(callback); // needed only for iOs. On Android do nothing
+                    iOS.startNFC(callback);
+#endif
                 }
                 Features = new ObservableCollection<Feature>();
 
+                RutokenPkcs11InteropFactories factories = new RutokenPkcs11InteropFactories();
+
                 // Инициализировать библиотеку
-                using (var pkcs11 = new Pkcs11(Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
+                using (var pkcs11 = factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(factories, Settings.RutokenEcpDllDefaultPath, AppType.MultiThreaded))
                 {
                     // Получить информацию о библиотеке
                     var libraryInfo = pkcs11.GetInfo();
@@ -91,7 +98,7 @@ namespace Xamarin.Info
                         WaitingForToken(pkcs11, ref stopFlag);
 
                     // Получить слоты
-                    List<Slot> slots = pkcs11.GetSlotList(SlotsType.WithTokenPresent);
+                    List<IRutokenSlot> slots = pkcs11.GetRutokenSlotList(SlotsType.WithTokenPresent);
                     // Проверить, что слоты найдены
                     if (slots == null)
                         throw new NullReferenceException("No available slots");
@@ -154,7 +161,9 @@ namespace Xamarin.Info
             {
                 if (use_nfc)
                 {
-                    App.platformSpecificFunctions.stopNFC(); // needed only for iOs. On Android do nothing
+#if __IOS__
+                    App.platformSpecificFunctions.stopNFC();
+#endif
                 }
             }
         }
