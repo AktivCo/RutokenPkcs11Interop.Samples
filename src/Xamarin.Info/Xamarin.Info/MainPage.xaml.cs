@@ -2,6 +2,7 @@
 using Net.Pkcs11Interop.HighLevelAPI;
 using RutokenPkcs11Interop;
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using RutokenPkcs11Interop.Common;
@@ -40,11 +41,20 @@ namespace Xamarin.Info
             }
         }
 
-        private void WaitingForToken(Pkcs11 pkcs11)
+        private bool WaitingForToken(Pkcs11 pkcs11, ref bool stopFlag)
         {
             for (; ; )
             {
-                List<Slot> slots = pkcs11.GetSlotList(SlotsType.WithTokenPresent);
+                bool eventOccured = false;
+                ulong slotId = 0;
+                pkcs11.WaitForSlotEvent(WaitType.NonBlocking, out eventOccured, out slotId);
+                if (eventOccured)
+                    return true;
+
+                if (stopFlag)
+                    return false;
+
+                Thread.Sleep(500);
             }
 
         }
@@ -52,14 +62,17 @@ namespace Xamarin.Info
         private async void Button_OnClicked(object sender, EventArgs e)
         {
             bool use_nfc = false;
-            try
+            if (Device.RuntimePlatform == Device.iOS)
             {
                 string token_type = await DisplayActionSheet("Использовать:", "Cancel", null, "NFC Рутокен", "BT Рутокен");
-
                 use_nfc = token_type == "NFC Рутокен";
+            }
+            try
+            {
+                bool stopFlag = false;
                 if (use_nfc)
                 {
-                    Action<string> callback = x => Console.WriteLine(x);
+                    Action<string> callback = x => { Console.WriteLine(x); stopFlag = true; };
                     App.platformSpecificFunctions.startNFC(callback); // needed only for iOs. On Android do nothing
                 }
                 Features = new ObservableCollection<Feature>();
@@ -75,9 +88,7 @@ namespace Xamarin.Info
                     Features.Add(new Feature("Library description", libraryInfo.LibraryDescription));
 
                     if (use_nfc)
-                    {
-                        WaitingForToken(pkcs11);
-                    }
+                        WaitingForToken(pkcs11, ref stopFlag);
 
                     // Получить слоты
                     List<Slot> slots = pkcs11.GetSlotList(SlotsType.WithTokenPresent);

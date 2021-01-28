@@ -21,7 +21,6 @@ namespace Xamarin.Info.iOS
         [MonoPInvokeCallback(typeof(startNFCCallbackProxy))]
         private static void TrampolineHandler(IntPtr block, IntPtr error)
         {
-            Console.WriteLine("kek");
             // Find the delegate for the block and call it
             var callback = BlockLiteral.GetTarget<startNFCCallback>(block);
             if (callback != null)
@@ -32,9 +31,6 @@ namespace Xamarin.Info.iOS
         {
             [DllImport("__Internal")]
             public static extern void startNFC(ref BlockLiteral block);
-
-            [DllImport("__Internal")]
-            public static extern void testFunc(ref BlockLiteral block);
 
             [DllImport("__Internal")]
             public static extern int stopNFC();
