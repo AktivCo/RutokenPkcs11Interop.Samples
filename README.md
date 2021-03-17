@@ -19,4 +19,4 @@
 Перед началом запуска примеров, нужно в менеджере пакетов NuGet установить RutokenPkcs11Interop послежне версии
 
 ## Сборка для Andoid
-При сборке для Android устойств, дополнительно нужно положить последние версии библиотек rtserviceconnection.aar и pkcs11jna.jar в директорию src/Xamarin.Info/Xamarin.Info.Android/Jars. Их можно взять из нашего [sdk](https://www.rutoken.ru/developers/sdk/) в директориях sdk\mobile\android\libs и sdk\java\samples\lib
+При сборке для Android устойств, дополнительно нужно положить последние версии библиотек rtserviceconnection.aar и pkcs11jna.jar в директорию xamarin/Xamarin.Info/Xamarin.Info.Android/Jars. Их можно взять из нашего [sdk](https://www.rutoken.ru/developers/sdk/) в директориях sdk\mobile\android\libs и sdk\java\samples\lib
