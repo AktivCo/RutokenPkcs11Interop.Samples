@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TimeStampTest": {
+      "commandName": "Project",
+      "workingDirectory": "."
+    }
+  }
+}
