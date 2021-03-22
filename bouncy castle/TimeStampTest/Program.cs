@@ -21,6 +21,7 @@ using Org.BouncyCastle.X509;
 
 using Net.RutokenPkcs11Interop.HighLevelAPI;
 using Net.RutokenPkcs11Interop.Common;
+using Net.RutokenPkcs11Interop;
 
 
 namespace TimeStampTest
@@ -155,7 +156,7 @@ namespace TimeStampTest
             var x509Store = new CkVendorX509Store(GetTrustedCerts(), GetCerts());
 
             var factories = new RutokenPkcs11InteropFactories();
-            using (var pkcs11 = factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(factories, "rtpkcs11ecp.dll", Net.Pkcs11Interop.Common.AppType.MultiThreaded))
+            using (var pkcs11 = factories.RutokenPkcs11LibraryFactory.LoadRutokenPkcs11Library(factories, Settings.RutokenEcpDllDefaultPath, Net.Pkcs11Interop.Common.AppType.MultiThreaded))
             {
                 IRutokenSlot slot = pkcs11.GetRutokenSlotList(Net.Pkcs11Interop.Common.SlotsType.WithTokenPresent)[0];
                 using (var session = slot.OpenRutokenSession(Net.Pkcs11Interop.Common.SessionType.ReadOnly))
