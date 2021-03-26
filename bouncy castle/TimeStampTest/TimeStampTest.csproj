@@ -3,11 +3,16 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PublishTrimmed>true</PublishTrimmed>
+    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Aktiv.RtPkcs11Ecp.Natives" Version="2.1.0" />
-    <PackageReference Include="Aktiv.RutokenPkcs11Interop" Version="2.0.11" />
     <PackageReference Include="BouncyCastle" Version="1.8.9" />
     <PackageReference Include="RutokenPkcs11Interop" Version="5.1.1" />
   </ItemGroup>
