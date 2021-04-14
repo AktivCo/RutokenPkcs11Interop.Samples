@@ -7,9 +7,9 @@ using Org.BouncyCastle.Asn1.Cms;
 using OpenSslPemWriter = Org.BouncyCastle.OpenSsl.PemWriter;
 using Org.BouncyCastle.Asn1;
 
-namespace TimeStampTest
+namespace BouncyCastleTests
 {
-    class Util
+    public class Utils
     {
         public static void PrintString(string label, string data)
         {

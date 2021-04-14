@@ -23,17 +23,16 @@ using Net.RutokenPkcs11Interop.HighLevelAPI;
 using Net.RutokenPkcs11Interop.Common;
 using Net.RutokenPkcs11Interop;
 
-
-namespace TimeStampTest
+namespace BouncyCastleTests
 {
-    class Program
+    class TimeStampTest
     {
         static void Main(string[] args)
         {
             try
             {
-                CmsSignedData cms = Util.ReadCmsFromFile("cms.pem");
-                Util.PrintString("Original CMS signature in PEM is:", Util.CmsToPem(cms));
+                CmsSignedData cms = Utils.ReadCmsFromFile("cms.pem");
+                Utils.PrintString("Original CMS signature in PEM is:", Utils.CmsToPem(cms));
 
                 TimeStampRequest timeStampRequest = MakeTimeStampRequest(cms);
                 Console.WriteLine("TimeStamp request created successfully.");
@@ -51,14 +50,14 @@ namespace TimeStampTest
                             + timeStampResponse.Status);
                 Console.WriteLine("TimeStamp response validated successfully.");
 
-                Util.PrintString("TimeStamp token in PEM is:",
-                        Util.CmsToPem(timeStampResponse.TimeStampToken.ToCmsSignedData()));
+                Utils.PrintString("TimeStamp token in PEM is:",
+                        Utils.CmsToPem(timeStampResponse.TimeStampToken.ToCmsSignedData()));
 
                 VerifyTimeStampResponseSignature(timeStampResponse);
                 Console.WriteLine("TimeStamp token signature verified successfully.");
 
                 cms = AddTimeStampTokenToCms(timeStampResponse, cms);
-                Util.PrintString("CMS signature with TimeStamp token in PEM is:", Util.CmsToPem(cms));
+                Utils.PrintString("CMS signature with TimeStamp token in PEM is:", Utils.CmsToPem(cms));
 
                 Console.WriteLine("Sample has been completed successfully.");
             }
